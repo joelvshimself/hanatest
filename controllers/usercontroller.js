@@ -159,3 +159,56 @@ exports.deleteUser = (req, res) => {
     res.json({ message: '✅ Usuario eliminado' });
   });
 };
+
+
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Iniciar sesión
+ *     description: Verifica las credenciales del usuario (email y passwordhash) en la base de datos.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               passwordhash:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Inicio de sesión exitoso.
+ *       401:
+ *         description: Credenciales inválidas.
+ */
+exports.login = (req, res) => {
+  const { email, passwordhash } = req.body;
+
+  // Puedes implementar validaciones adicionales aquí,
+  // como asegurarte de que los campos no estén vacíos, etc.
+  if (!email || !passwordhash) {
+    return res.status(400).json({ error: 'Faltan datos obligatorios' });
+  }
+
+  conn.exec(
+    'SELECT * FROM USERS WHERE EMAIL = ? AND PASSWORDHASH = ?',
+    [email, passwordhash],
+    (err, result) => {
+      if (err) {
+        console.error('❌ Error en la consulta de login:', err.message);
+        return res.status(500).json({ error: 'Error en el servidor' });
+      }
+
+      // Si no se encontró ningún usuario con esas credenciales, se devuelven credenciales inválidas
+      if (!result || result.length === 0) {
+        return res.status(401).json({ error: 'Credenciales inválidas' });
+      }
+
+      // Ejemplo: retornar el usuario o un token. Aquí se devolverá solo un mensaje.
+      res.json({ message: '✅ Inicio de sesión exitoso', user: result[0] });
+    }
+  );
+};

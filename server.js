@@ -1,6 +1,7 @@
 const express = require('express');
 const hana = require('@sap/hana-client');
-const morgan = require('morgan'); // Importar Morgan
+const morgan = require('morgan');
+const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const userController = require('./controllers/usercontroller');
@@ -11,9 +12,15 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(morgan('dev')); // Habilitar Morgan para logs HTTP
 app.use(statusMonitor()); // Habilitar Status Monitor
+
+app.use(cors({
+  origin: 'http://localhost:5030',  // O el dominio de tu front-end
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
 
 // Conexión a SAP HANA
 const conn = hana.createConnection();
@@ -67,6 +74,10 @@ app.get('/users', userController.getUsers);
 app.post('/users', userController.createUser);
 app.put('/users/:id', userController.updateUser);
 app.delete('/users/:id', userController.deleteUser);
+// Ruta de login
+app.post('/login', userController.login);
+
+
 
 // Iniciar servidor
 const PORT = 5030;
