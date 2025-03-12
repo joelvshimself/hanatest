@@ -18,8 +18,9 @@ app.use(morgan('dev')); // Habilitar Morgan para logs HTTP
 app.use(statusMonitor()); // Habilitar Status Monitor
 
 app.use(cors({
-  origin: 'http://localhost:5030',  // O el dominio de tu front-end
+  origin: '*', // Permitir todas las fuentes
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Conexión a SAP HANA
